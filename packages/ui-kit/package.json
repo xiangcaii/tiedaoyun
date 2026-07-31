@@ -1,0 +1,25 @@
+{
+  "name": "@tiedaoyun/ui-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "铁道云通用 UI 原子组件（web / mobile / 设计器复用）",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./src/index.tsx",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0"
+  }
+}

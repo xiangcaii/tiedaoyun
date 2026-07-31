@@ -53,3 +53,7 @@ backups/
 
 # Temp/cache
 .tmp/
+
+# Agent / AI 协作产物
+AGENTS.md
+docs/staging/plans/2026-07-31-m1-mvp.md
