@@ -1,8 +1,8 @@
 /**
  * 环境变量校验（class-validator，HLD §11.2 可观测）。
  *
- * 仅强校验 T5 启动必需变量；其余变量（DATABASE_URL / REDIS_URL / JWT_*）
- * 在 T6 / T7 引入对应基础设施时再收紧为必填。
+ * T5–T6：仅强校验启动必需 + DATABASE_URL。
+ * T7（Auth）：收紧 JWT_ACCESS_SECRET / JWT_REFRESH_SECRET 为必填。
  */
 import { plainToInstance } from 'class-transformer';
 import {
@@ -31,8 +31,6 @@ class EnvVariables {
   @Matches(/^[0-9a-zA-Z.\-:]+$/, { message: 'SERVER_HOST must be a valid host' })
   SERVER_HOST!: string;
 
-  // 以下变量在 T5 阶段可选，T6 起收紧 DATABASE_URL 为必填。
-
   @IsString()
   @Matches(/^postgres(ql)?:\/\/.+/, {
     message: 'DATABASE_URL must be a PostgreSQL connection string',
@@ -43,13 +41,14 @@ class EnvVariables {
   @IsString()
   REDIS_URL?: string;
 
-  @IsOptional()
+  // T7（Auth）：JWT 密钥为生产必填，开发/测试环境允许使用 .env 兜底值。
   @IsString()
-  JWT_ACCESS_SECRET?: string;
+  @Matches(/^.{16,}$/, { message: 'JWT_ACCESS_SECRET must be at least 16 chars' })
+  JWT_ACCESS_SECRET!: string;
 
-  @IsOptional()
   @IsString()
-  JWT_REFRESH_SECRET?: string;
+  @Matches(/^.{16,}$/, { message: 'JWT_REFRESH_SECRET must be at least 16 chars' })
+  JWT_REFRESH_SECRET!: string;
 
   @IsOptional()
   @IsString()

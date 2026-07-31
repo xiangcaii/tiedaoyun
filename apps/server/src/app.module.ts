@@ -19,6 +19,8 @@ import { validateEnv } from './config/env.validation';
 import { buildPinoConfig } from './config/logger.config';
 import { HealthController } from './common/health/health.controller';
 import { PrismaModule } from './infra/prisma/prisma.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { PrismaModule } from './infra/prisma/prisma.module';
     }),
     LoggerModule.forRoot(buildPinoConfig()),
     PrismaModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [HealthController],
 })

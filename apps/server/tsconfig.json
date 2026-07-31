@@ -8,5 +8,6 @@
     "emitDecoratorMetadata": true,
     "isolatedModules": false
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.spec.ts"]
 }

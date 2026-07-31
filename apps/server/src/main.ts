@@ -9,7 +9,7 @@
  * 5. 监听 SERVER_HOST:SERVER_PORT。
  *
  * 健康检查端点 /healthz、/readyz 由 HealthController 提供，不挂全局前缀，
- * 便于 docker / nginx 直接探活；业务 API 的 /api/v1 前缀在 T7 起按需引入。
+ * 便于 docker / nginx 直接探活；业务 API 统一挂载 /api/v1 前缀（T7 起生效）。
  */
 import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
@@ -46,6 +46,9 @@ async function bootstrap(): Promise<void> {
   // 全局异常过滤器：注入 HttpAdapterHost 以兼容非 Express 适配器。
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+
+  // T7: 业务 API 统一前缀 /api/v1（健康检查端点 /healthz、/readyz 不受影响）。
+  app.setGlobalPrefix('api/v1');
 
   // T6: 启用优雅关闭，确保 Prisma 连接在 SIGTERM 时正确释放。
   app.enableShutdownHooks();

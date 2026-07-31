@@ -1,8 +1,8 @@
 /**
  * 环境变量 → 类型化配置对象（HLD §11.2 可观测、§12 部署）。
  *
- * 仅声明 T5 骨架启动所需字段；DB / Redis / JWT 等模块相关配置
- * 在后续任务（T6 Prisma、T7 Auth）落地时由各自模块补齐校验。
+ * T5：server / database / raw
+ * T7（Auth）：新增 jwt 配置
  */
 
 export interface ServerConfig {
@@ -15,14 +15,28 @@ export interface ServerConfig {
 }
 
 export interface DatabaseConfig {
-  /** PostgreSQL 连接串（T6：env 校验已强制为必填，此处非空） */
+  /** PostgreSQL 连接串 */
   url: string;
+}
+
+export interface JwtConfig {
+  /** Access Token 密钥 */
+  accessSecret: string;
+  /** Refresh Token 密钥 */
+  refreshSecret: string;
+  /** Access Token 有效期（如 15m / 900s） */
+  accessTtl: string;
+  /** Refresh Token 有效期（如 7d / 604800s） */
+  refreshTtl: string;
+  /** 签名算法（HS256） */
+  algorithm: string;
 }
 
 export interface AppConfig {
   server: ServerConfig;
   database: DatabaseConfig;
-  /** 原始 env，供各模块按需读取（T6+ 使用） */
+  jwt: JwtConfig;
+  /** 原始 env，供各模块按需读取 */
   raw: NodeJS.ProcessEnv;
 }
 
@@ -39,6 +53,13 @@ export default function configuration(): AppConfig {
     },
     database: {
       url: process.env.DATABASE_URL!,
+    },
+    jwt: {
+      accessSecret: process.env.JWT_ACCESS_SECRET!,
+      refreshSecret: process.env.JWT_REFRESH_SECRET!,
+      accessTtl: process.env.JWT_ACCESS_TTL ?? '15m',
+      refreshTtl: process.env.JWT_REFRESH_TTL ?? '7d',
+      algorithm: 'HS256',
     },
     raw: process.env,
   };
