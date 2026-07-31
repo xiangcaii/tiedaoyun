@@ -18,6 +18,8 @@
     "typecheck": "pnpm -r run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,yml,yaml}\"",
+    "db:migrate": "tsx scripts/generate-migration.ts",
+    "db:studio": "pnpm -F @tiedaoyun/server db:studio",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -38,6 +40,7 @@
     "husky": "^9.1.0",
     "lint-staged": "^15.2.0",
     "prettier": "^3.3.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.4.0"
   }
 }

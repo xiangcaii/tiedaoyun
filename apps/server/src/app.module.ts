@@ -6,7 +6,10 @@
  * - LoggerModule（nestjs-pino）：结构化日志（config/logger.config.ts）
  * - HealthController：/healthz、/readyz
  *
- * 后续任务（T6 Prisma、T7 Auth、T8 Workspace …）在此处增量挂载子模块。
+ * T6 阶段聚合：
+ * - PrismaModule：全局数据连接（infra/prisma/）
+ *
+ * 后续任务（T7 Auth、T8 Workspace …）在此处增量挂载子模块。
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -15,6 +18,7 @@ import configuration from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { buildPinoConfig } from './config/logger.config';
 import { HealthController } from './common/health/health.controller';
+import { PrismaModule } from './infra/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -26,6 +30,7 @@ import { HealthController } from './common/health/health.controller';
       validate: validateEnv,
     }),
     LoggerModule.forRoot(buildPinoConfig()),
+    PrismaModule,
   ],
   controllers: [HealthController],
 })

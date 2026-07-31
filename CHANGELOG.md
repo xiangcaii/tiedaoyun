@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ### Added
 
+- 接入 Prisma + 元数据 schema（T6）
+  - 新增 `@prisma/client`（dep）与 `prisma`（devDep），版本 ^5.22.0
+  - `apps/server/prisma/schema.prisma`：落地 HLD §5.3 全部 23 张元数据表，含 15 个 Prisma enum（稳定生命周期状态）与 JSONB 扩展字段
+  - `apps/server/src/infra/prisma/`：全局 `PrismaModule` + `PrismaService`（PrismaClient 封装，日志转发 pino）
+  - `scripts/generate-migration.ts`：极简 migration 生成脚本，加载根与 server 的 .env 后执行 `prisma migrate dev`
+  - `DATABASE_URL` 校验收紧为必填（`env.validation.ts`）；add `database` 配置节（`configuration.ts`）
+  - `health.controller.readyz` 接入真实 DB 探针（`SELECT 1`），失败时 503
+  - `apps/server/package.json` 新增 `db:generate / db:migrate / db:migrate:deploy / db:studio / postinstall` 脚本
+  - 根 `package.json` 新增 `tsx` 依赖与 `db:migrate / db:studio` 便捷脚本
+  - `deploy/docker-compose.yml` postgres 服务发布端口 `${POSTGRES_PORT:-5432}:5432` 以支持本地开发
+  - `apps/server/.env`（gitignored）开发环境变量模板
+  - 首次 migration `20260731070020_init_metadata` 已应用于开发库
+
 - 初始化 monorepo 工程脚手架（T1）
   - pnpm workspace + 根 `package.json`，`packageManager` 锁定 pnpm 10
   - `tsconfig.base.json` + 根 `tsconfig.json`，统一严格模式

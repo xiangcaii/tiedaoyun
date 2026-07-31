@@ -14,8 +14,14 @@ export interface ServerConfig {
   host: string;
 }
 
+export interface DatabaseConfig {
+  /** PostgreSQL 连接串（T6：env 校验已强制为必填，此处非空） */
+  url: string;
+}
+
 export interface AppConfig {
   server: ServerConfig;
+  database: DatabaseConfig;
   /** 原始 env，供各模块按需读取（T6+ 使用） */
   raw: NodeJS.ProcessEnv;
 }
@@ -30,6 +36,9 @@ export default function configuration(): AppConfig {
       nodeEnv: (process.env.NODE_ENV ?? 'development') as ServerConfig['nodeEnv'],
       port: Number.parseInt(process.env.SERVER_PORT ?? '3000', 10),
       host: process.env.SERVER_HOST ?? '0.0.0.0',
+    },
+    database: {
+      url: process.env.DATABASE_URL!,
     },
     raw: process.env,
   };

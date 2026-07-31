@@ -47,6 +47,9 @@ async function bootstrap(): Promise<void> {
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
+  // T6: 启用优雅关闭，确保 Prisma 连接在 SIGTERM 时正确释放。
+  app.enableShutdownHooks();
+
   const config = app.get(ConfigService<AppConfig, true>);
   const port = config.get('server.port', { infer: true }) ?? 3000;
   const host = config.get('server.host', { infer: true }) ?? '0.0.0.0';

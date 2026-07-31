@@ -31,12 +31,13 @@ class EnvVariables {
   @Matches(/^[0-9a-zA-Z.\-:]+$/, { message: 'SERVER_HOST must be a valid host' })
   SERVER_HOST!: string;
 
-  // 以下变量在 T5 阶段可选（带默认值在 configuration.ts 内兜底），
-  // 后续任务引入真实依赖时再改为必填。
+  // 以下变量在 T5 阶段可选，T6 起收紧 DATABASE_URL 为必填。
 
-  @IsOptional()
   @IsString()
-  DATABASE_URL?: string;
+  @Matches(/^postgres(ql)?:\/\/.+/, {
+    message: 'DATABASE_URL must be a PostgreSQL connection string',
+  })
+  DATABASE_URL!: string;
 
   @IsOptional()
   @IsString()
