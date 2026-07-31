@@ -1,20 +1,62 @@
 /**
- * 铁道云后端服务入口（骨架）。
+ * NestJS 服务启动入口（HLD §4.1、§11.2）。
  *
- * 当前为 T4 阶段的最小骨架，仅验证对 @tiedaoyun/utils 的引用通过类型检查。
- * T5 将在此基础接入 NestJS（main.ts / app.module.ts / config / common）。
+ * 启动流程：
+ * 1. 创建 Nest 应用，启用 pino 作为默认 Logger（bufferLogs 确保启动期日志也走 pino）。
+ * 2. 全局中间件：Helmet（安全响应头）、CORS。
+ * 3. 全局管道：ValidationPipe（whitelist + transform，对齐 HLD §6.1 输入校验）。
+ * 4. 全局过滤器：AllExceptionsFilter（统一错误响应形状）。
+ * 5. 监听 SERVER_HOST:SERVER_PORT。
+ *
+ * 健康检查端点 /healthz、/readyz 由 HealthController 提供，不挂全局前缀，
+ * 便于 docker / nginx 直接探活；业务 API 的 /api/v1 前缀在 T7 起按需引入。
  */
+import 'reflect-metadata';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
+import { Logger } from 'nestjs-pino';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exception.filter';
+import type { AppConfig } from './config/configuration';
 
-import { APP_VERSION, nowISO, physicalTableName, slugify } from '@tiedaoyun/utils';
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
 
-/** 服务版本，来自共享 utils */
-export const SERVER_VERSION: string = APP_VERSION;
+  // pino 接管所有日志（含 NestJS 内部启动日志）。
+  app.useLogger(app.get(Logger));
 
-/** 默认应用 slug（启动自检示例用） */
-export const DEFAULT_APP_SLUG: string = slugify('tiedaoyun');
+  // 安全响应头 & 跨域。
+  app.use(helmet());
+  app.enableCors();
 
-/** 示例：物理表名生成（HLD §5.1），证明 utils 引用可用 */
-export const DEMO_TABLE_NAME: string = physicalTableName(DEFAULT_APP_SLUG, 'employee');
+  // 全局输入校验：剥离未声明字段、自动类型转换、拒绝非白名单字段。
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
 
-/** 启动时间戳（ISO8601 UTC，HLD §6.1） */
-export const BOOT_TIME: string = nowISO();
+  // 全局异常过滤器：注入 HttpAdapterHost 以兼容非 Express 适配器。
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+
+  const config = app.get(ConfigService<AppConfig, true>);
+  const port = config.get('server.port', { infer: true }) ?? 3000;
+  const host = config.get('server.host', { infer: true }) ?? '0.0.0.0';
+
+  await app.listen(port, host);
+
+  const logger = app.get(Logger);
+  logger.log(`🚀 铁道云后端已启动：http://${host}:${port}`);
+  logger.log(`   healthz → http://${host}:${port}/healthz`);
+  logger.log(`   readyz  → http://${host}:${port}/readyz`);
+}
+
+void bootstrap();
