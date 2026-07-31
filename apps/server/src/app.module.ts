@@ -9,7 +9,13 @@
  * T6 阶段聚合：
  * - PrismaModule：全局数据连接（infra/prisma/）
  *
- * 后续任务（T7 Auth、T8 Workspace …）在此处增量挂载子模块。
+ * T7 阶段聚合：
+ * - AuthModule：鉴权（modules/auth/）
+ * - UserModule：用户服务（modules/user/）
+ *
+ * T8 阶段聚合：
+ * - WorkspaceModule：工作空间 + 成员（modules/workspace/）
+ * - RoleModule：角色 + 权限点（modules/role/）
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -21,6 +27,8 @@ import { HealthController } from './common/health/health.controller';
 import { PrismaModule } from './infra/prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WorkspaceModule } from './modules/workspace/workspace.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -35,6 +43,8 @@ import { AuthModule } from './modules/auth/auth.module';
     PrismaModule,
     UserModule,
     AuthModule,
+    WorkspaceModule,
+    RoleModule,
   ],
   controllers: [HealthController],
 })
