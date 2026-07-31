@@ -4,66 +4,56 @@
  * 本包提供数据模型 / 表单 / 列表 / 页面 / 流程的 TypeScript 类型，
  * 前后端共用，确保元数据契约一致（HLD §4.3）。
  *
- * 当前为骨架版本，具体 schema 将在 T10 / T14 / T15 / T16 / T17 中补全，
- * 届时会拆分为 entity.ts / form.ts / list.ts / page.ts / workflow.ts 并补 Zod 校验。
+ * 拆分：
+ * - entity.ts  — 数据模型（实体 / 字段 / 关系 / 校验 / 索引），plan T10
+ * - form.ts    — 表单（HLD §9.1 / PRD §7.2.2），plan T14
+ * - list.ts    — 列表（HLD §9.1 / PRD §7.2.3），plan T15
+ * - page.ts    — 页面（HLD §9.1 / PRD §7.2.5），plan T16
+ * - workflow.ts — 流程（HLD §8.1），plan T17
  */
 
-/* ===================== 数据模型（entity / field / relation） ===================== */
+/* ===================== 数据模型 ===================== */
+export {
+  // 枚举
+  FieldType,
+  RelationType,
+  // 常量
+  FIELD_TYPES,
+  RELATION_TYPE_VALUES,
+  TEXT_LIKE_FIELD_TYPES,
+  NUMERIC_FIELD_TYPES,
+  DATE_LIKE_FIELD_TYPES,
+  // 校验函数
+  isValidEntitySlug,
+  isValidAppSlug,
+  isValidFieldName,
+  entityTableName,
+  junctionTableName,
+  // 类型
+  type TextFieldConfig,
+  type NumberFieldConfig,
+  type BooleanFieldConfig,
+  type DateFieldConfig,
+  type UuidFieldConfig,
+  type JsonFieldConfig,
+  type EnumOption,
+  type EnumFieldConfig,
+  type RefFieldConfig,
+  type FormulaFieldConfig,
+  type MediaFieldConfig,
+  type LocationFieldConfig,
+  type SignatureFieldConfig,
+  type SubTableFieldConfig,
+  type FieldConfig,
+  type FieldValidationRule,
+  type FieldIndex,
+  type FieldSchema,
+  type RelationSchema,
+  type RelationOnDelete,
+  type EntitySchema,
+} from './entity';
 
-/** 字段类型枚举（HLD §5.3 fields 表） */
-export enum FieldType {
-  String = 'string',
-  Number = 'number',
-  Boolean = 'boolean',
-  Date = 'date',
-  DateTime = 'datetime',
-  Text = 'text',
-  Uuid = 'uuid',
-  Json = 'json',
-  Ref = 'ref',
-}
-
-/** 实体字段定义 */
-export interface FieldSchema {
-  id: string;
-  name: string;
-  label: string;
-  type: FieldType;
-  required?: boolean;
-  unique?: boolean;
-  defaultValue?: unknown;
-  /** 关系字段：指向目标实体 ID */
-  refEntityId?: string;
-}
-
-/** 实体关系类型 */
-export enum RelationType {
-  OneToOne = 'one-to-one',
-  OneToMany = 'one-to-many',
-  ManyToOne = 'many-to-one',
-  ManyToMany = 'many-to-many',
-}
-
-/** 实体关系定义 */
-export interface RelationSchema {
-  id: string;
-  name: string;
-  type: RelationType;
-  sourceEntityId: string;
-  targetEntityId: string;
-}
-
-/** 实体定义 */
-export interface EntitySchema {
-  id: string;
-  name: string;
-  label: string;
-  appId: string;
-  fields: FieldSchema[];
-  relations: RelationSchema[];
-}
-
-/* ===================== 表单（form，HLD §9.1） ===================== */
+/* ===================== 表单（HLD §9.1） ===================== */
 
 /** 表单字段绑定模式 */
 export type FieldBindMode = 'read' | 'write' | 'hidden';
@@ -88,7 +78,7 @@ export interface FormSchema {
   fieldPerms?: Record<string, FieldBindMode>;
 }
 
-/* ===================== 列表（list，HLD §9.1） ===================== */
+/* ===================== 列表（HLD §9.1） ===================== */
 
 /** 列表视图类型（v0.1 先实现 table + kanban，PRD §7.2.3） */
 export type ListViewType = 'table' | 'kanban' | 'calendar' | 'gantt' | 'tree';
@@ -113,7 +103,7 @@ export interface ListSchema {
   pageSize: number;
 }
 
-/* ===================== 页面（page，HLD §9.1） ===================== */
+/* ===================== 页面（HLD §9.1） ===================== */
 
 /** 页面 schema（HLD §9.1） */
 export interface PageSchema {
@@ -125,7 +115,7 @@ export interface PageSchema {
   actions?: unknown[];
 }
 
-/* ===================== 流程（workflow，HLD §8） ===================== */
+/* ===================== 流程（HLD §8） ===================== */
 
 /** 流程节点类型（HLD §8.1） */
 export enum WorkflowNodeType {
