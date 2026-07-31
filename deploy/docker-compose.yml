@@ -1,0 +1,160 @@
+# tiedaoyun 单机部署 Docker Compose
+# 编排 6 个服务：postgres / redis / server / web / nginx / backup
+# 对齐 HLD §12.1 与 plan T2
+#
+# 用法：
+#   cd deploy && cp ../.env.example .env && docker compose up -d
+#   curl localhost/healthz   # 应返回 200
+
+name: tiedaoyun
+
+services:
+  # ===== 数据库 =====
+  postgres:
+    image: postgres:16-alpine
+    container_name: tiedaoyun-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tiedaoyun}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tiedaoyun}
+      POSTGRES_DB: ${POSTGRES_DB:-tiedaoyun}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-tiedaoyun} -d ${POSTGRES_DB:-tiedaoyun}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ===== 缓存 / 队列 =====
+  redis:
+    image: redis:7-alpine
+    container_name: tiedaoyun-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ===== 后端服务 =====
+  # T2 阶段为占位进程；T5 完成后切换为 build 方式
+  server:
+    image: node:20-alpine
+    container_name: tiedaoyun-server
+    working_dir: /app
+    command:
+      - node
+      - -e
+      - |
+        const http = require('http');
+        http.createServer((req, res) => {
+          if (req.url === '/healthz') {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            return res.end('ok');
+          }
+          if (req.url === '/readyz') {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            return res.end('ready');
+          }
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end('tiedaoyun server placeholder · T5 will replace this');
+        }).listen(3000);
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      SERVER_PORT: '3000'
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tiedaoyun}:${POSTGRES_PASSWORD:-tiedaoyun}@postgres:5432/${POSTGRES_DB:-tiedaoyun}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/healthz || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    # T5 后切换为：
+    # build:
+    #   context: ..
+    #   dockerfile: deploy/docker/server.Dockerfile
+
+  # ===== 前端静态资源容器 =====
+  # T2 阶段为占位首页；T27 完成后切换为 build 方式
+  web:
+    image: nginx:1.25-alpine
+    container_name: tiedaoyun-web
+    volumes:
+      - ./docker/web.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/placeholder.html:/usr/share/nginx/html/index.html:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1/__healthz || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    # T27 后切换为：
+    # build:
+    #   context: ..
+    #   dockerfile: deploy/docker/web.Dockerfile
+
+  # ===== 入口网关 =====
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: tiedaoyun-nginx
+    ports:
+      - '${NGINX_PORT:-80}:80'
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1/healthz || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ===== 备份服务 =====
+  # T2 阶段为占位（保持存活）；T26 实现 backup.sh + cron 调度
+  backup:
+    image: postgres:16-alpine
+    container_name: tiedaoyun-backup
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-tiedaoyun}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-tiedaoyun}
+      PGDATABASE: ${POSTGRES_DB:-tiedaoyun}
+    volumes:
+      - backups:/backups
+      # T26 后挂载 backup 脚本：
+      # - ./backup:/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # T26 后切换为：entrypoint: ["/bin/sh", "/scripts/backup.sh"]
+    entrypoint: ['tail', '-f', '/dev/null']
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    name: tiedaoyun-pgdata
+  redisdata:
+    name: tiedaoyun-redisdata
+  backups:
+    name: tiedaoyun-backups
