@@ -74,6 +74,8 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+      # T29: 前端 origin（CORS + cookie credentials）；默认通过 nginx 同源访问
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost}
     depends_on:
       postgres:
         condition: service_healthy

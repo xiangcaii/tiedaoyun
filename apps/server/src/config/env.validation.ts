@@ -3,6 +3,7 @@
  *
  * T5–T6：仅强校验启动必需 + DATABASE_URL。
  * T7（Auth）：收紧 JWT_ACCESS_SECRET / JWT_REFRESH_SECRET 为必填。
+ * T29（Login）：可选 WEB_ORIGIN / AUTH_COOKIE_SAMESITE（CORS + cookie 参数）。
  */
 import { plainToInstance } from 'class-transformer';
 import {
@@ -53,6 +54,15 @@ class EnvVariables {
   @IsOptional()
   @IsString()
   FIELD_ENCRYPTION_KEY?: string;
+
+  // T29（Login）：CORS origin 与 refresh token cookie 参数。
+  @IsOptional()
+  @IsString()
+  WEB_ORIGIN?: string;
+
+  @IsOptional()
+  @IsString()
+  AUTH_COOKIE_SAMESITE?: string;
 }
 
 /** T5 启动所需变量的兜底默认值（仅在 env / .env 未提供时生效） */

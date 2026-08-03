@@ -19,8 +19,8 @@ import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto, UpdateMemberDto, BatchInviteDto } from './dto/member.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import type { JwtPayload } from '../../auth/auth.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { JwtPayload } from '../auth/auth.service';
 import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {

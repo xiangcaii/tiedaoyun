@@ -12,6 +12,17 @@
  * - workflow.ts — 流程（HLD §8.1），plan T17
  */
 
+/* ===================== 鉴权（plan T29 / features/2026-08-03-login.md） ===================== */
+export {
+  type UserStatus,
+  type SafeUser,
+  type LoginRequest,
+  type LoginResponse,
+  type RefreshResponse,
+  type LogoutResponse,
+  type MeResponse,
+} from './auth';
+
 /* ===================== 数据模型 ===================== */
 export {
   // 枚举

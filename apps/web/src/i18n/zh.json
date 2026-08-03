@@ -1,0 +1,47 @@
+{
+  "app": {
+    "title": "铁道云"
+  },
+  "login": {
+    "title": "登录",
+    "eyebrow": "TIEDAOYUN PLATFORM",
+    "platformSubtitle": "自部署、可扩展的低代码平台",
+    "platformDescription": "从数据建模到流程协作，为团队提供统一、清晰、可持续演进的业务搭建底座。",
+    "featureModel": "数据模型",
+    "featureFlow": "流程编排",
+    "featurePermission": "权限控制",
+    "featureModelDesc": "定义实体、字段与关系，让业务结构先于页面稳定下来。",
+    "featureFlowDesc": "把审批、通知与自动动作串起来，减少重复协作成本。",
+    "featurePermissionDesc": "围绕角色、字段与操作边界建立可信的权限体系。",
+    "cardBadge": "管理员与成员登录",
+    "cardTitle": "欢迎回来",
+    "cardDescription": "登录后进入工作空间，继续搭建与管理业务应用。",
+    "email": "邮箱",
+    "emailPlaceholder": "请输入邮箱",
+    "emailRequired": "请输入邮箱",
+    "emailInvalid": "邮箱格式不正确",
+    "password": "密码",
+    "passwordPlaceholder": "请输入密码",
+    "passwordRequired": "请输入密码",
+    "passwordMinHint": "至少 6 位",
+    "submit": "登录",
+    "submitting": "登录中…",
+    "errorDefault": "登录失败，请稍后重试",
+    "backHome": "返回首页",
+    "securityHint": "受保护连接 · 会话自动续期"
+  },
+  "workspace": {
+    "placeholderAlert": "工作空间详细管理功能将在后续任务实现，本页仅为登录后落地占位。",
+    "title": "工作空间",
+    "empty": "暂无工作空间",
+    "create": "创建工作空间",
+    "createDisabledHint": "工作空间管理功能开发中",
+    "itemClickHint": "工作空间管理功能开发中"
+  },
+  "common": {
+    "logout": "登出",
+    "loading": "加载中…",
+    "notFound": "页面不存在",
+    "backHome": "返回首页"
+  }
+}

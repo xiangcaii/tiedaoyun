@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import type { AppConfig } from './config/configuration';
@@ -31,7 +32,13 @@ async function bootstrap(): Promise<void> {
 
   // 安全响应头 & 跨域。
   app.use(helmet());
-  app.enableCors();
+  // T29: CORS 受 WEB_ORIGIN 控制，必须开启 credentials 才能携带 refresh token cookie。
+  const config = app.get(ConfigService<AppConfig, true>);
+  const webOrigin = config.get('web.origin', { infer: true })!;
+  app.enableCors({ origin: webOrigin, credentials: true });
+
+  // T29: 解析 httpOnly cookie（refresh token 从 req.cookies 读取）。
+  app.use(cookieParser());
 
   // 全局输入校验：剥离未声明字段、自动类型转换、拒绝非白名单字段。
   app.useGlobalPipes(
@@ -53,7 +60,6 @@ async function bootstrap(): Promise<void> {
   // T6: 启用优雅关闭，确保 Prisma 连接在 SIGTERM 时正确释放。
   app.enableShutdownHooks();
 
-  const config = app.get(ConfigService<AppConfig, true>);
   const port = config.get('server.port', { infer: true }) ?? 3000;
   const host = config.get('server.host', { infer: true }) ?? '0.0.0.0';
 
