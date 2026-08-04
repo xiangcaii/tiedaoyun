@@ -38,7 +38,6 @@ describe('LoginPage', () => {
 
   it('uses a compact 36px input height', () => {
     const css = readFileSync(new URL('./LoginPage.css', import.meta.url), 'utf8');
-
     expect(css).toContain('min-height: 36px;');
   });
 });

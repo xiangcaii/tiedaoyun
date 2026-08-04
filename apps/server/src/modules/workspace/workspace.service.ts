@@ -13,8 +13,20 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
+import type { PaginatedResponse } from '@tiedaoyun/schema-types';
 import { PrismaService } from '../../infra/prisma/prisma.service';
-import type { Workspace, WorkspaceMember } from '@prisma/client';
+import type { Prisma, Workspace, WorkspaceMember } from '@prisma/client';
+
+type WorkspaceListStatus = 'active' | 'archived';
+type WorkspaceListSort = 'createdAtDesc' | 'createdAtAsc' | 'nameAsc' | 'nameDesc';
+
+interface ListByUserQuery {
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+  status?: WorkspaceListStatus;
+  sort?: WorkspaceListSort;
+}
 
 @Injectable()
 export class WorkspaceService {
@@ -89,20 +101,51 @@ export class WorkspaceService {
     return workspace;
   }
 
-  /** 获取用户所属的所有工作空间 */
-  async listByUser(userId: string): Promise<Workspace[]> {
-    return this.prisma.workspace.findMany({
-      where: {
-        members: {
-          some: {
-            userId,
-            status: { in: ['ACTIVE', 'INVITED'] },
-          },
+  /** 获取用户所属的工作空间分页列表 */
+  async listByUser(
+    userId: string,
+    query: ListByUserQuery = {},
+  ): Promise<PaginatedResponse<Workspace>> {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 10;
+    const keyword = query.keyword?.trim();
+
+    const where: Prisma.WorkspaceWhereInput = {
+      members: {
+        some: {
+          userId,
+          status: { in: ['ACTIVE', 'INVITED'] },
         },
-        deletedAt: null,
       },
-      orderBy: { createdAt: 'asc' },
-    });
+      deletedAt: null,
+      ...(query.status ? { status: query.status } : {}),
+      ...(keyword
+        ? {
+            OR: [
+              { name: { contains: keyword, mode: 'insensitive' } },
+              { slug: { contains: keyword, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const orderBy = this.resolveListOrderBy(query.sort);
+    const [total, items] = await Promise.all([
+      this.prisma.workspace.count({ where }),
+      this.prisma.workspace.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+    };
   }
 
   /** 更新工作空间 */
@@ -288,5 +331,12 @@ export class WorkspaceService {
   async isActiveMember(workspaceId: string, userId: string): Promise<boolean> {
     const member = await this.findMember(workspaceId, userId);
     return member !== null && member.status === 'ACTIVE';
+  }
+
+  private resolveListOrderBy(sort?: WorkspaceListSort): Prisma.WorkspaceOrderByWithRelationInput {
+    if (sort === 'nameAsc') return { name: 'asc' };
+    if (sort === 'nameDesc') return { name: 'desc' };
+    if (sort === 'createdAtAsc') return { createdAt: 'asc' };
+    return { createdAt: 'desc' };
   }
 }

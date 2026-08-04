@@ -14,11 +14,23 @@
  * - DELETE workspaces/:id/members/:userId — 移除成员
  * - PATCH  workspaces/:id/members/:userId — 更新成员角色
  */
-import { Controller, Get, Post, Patch, Delete, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto, UpdateMemberDto, BatchInviteDto } from './dto/member.dto';
+import { ListWorkspacesQueryDto } from './dto/list-workspaces-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { JwtPayload } from '../auth/auth.service';
 import type { Request } from 'express';
@@ -34,8 +46,8 @@ export class WorkspaceController {
 
   /** 获取当前用户的工作空间列表 */
   @Get('workspaces')
-  async listWorkspaces(@Req() req: AuthenticatedRequest) {
-    const workspaces = await this.workspaceService.listByUser(req.user.sub);
+  async listWorkspaces(@Req() req: AuthenticatedRequest, @Query() query: ListWorkspacesQueryDto) {
+    const workspaces = await this.workspaceService.listByUser(req.user.sub, query);
     return workspaces;
   }
 

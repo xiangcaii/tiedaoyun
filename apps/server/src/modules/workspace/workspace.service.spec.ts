@@ -166,11 +166,89 @@ describe('WorkspaceService', () => {
   describe('listByUser', () => {
     it('返回用户所属的活跃工作空间', async () => {
       const wsList = [workspaceFixture(), workspaceFixture({ id: 'ws-2', slug: 'ws-2' })];
+      prisma.workspace.count.mockResolvedValue(2);
       prisma.workspace.findMany.mockResolvedValue(wsList);
 
       const result = await service.listByUser(USER_ID);
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe('ws-1');
+      expect(result.items).toHaveLength(2);
+      expect(result.items[0].id).toBe('ws-1');
+      expect(result.total).toBe(2);
+      expect(result.page).toBe(1);
+      expect(result.pageSize).toBe(10);
+    });
+
+    it('按分页与搜索条件返回工作空间列表', async () => {
+      const wsList = [workspaceFixture({ id: 'ws-2', name: 'HR Center', slug: 'hr-center' })];
+      prisma.workspace.count.mockResolvedValue(21);
+      prisma.workspace.findMany.mockResolvedValue(wsList);
+
+      const result = await (
+        service as unknown as {
+          listByUser: (
+            userId: string,
+            query: {
+              page: number;
+              pageSize: number;
+              keyword?: string;
+              status?: 'active' | 'archived';
+              sort?: 'createdAtDesc' | 'createdAtAsc' | 'nameAsc' | 'nameDesc';
+            },
+          ) => Promise<{
+            items: ReturnType<typeof workspaceFixture>[];
+            total: number;
+            page: number;
+            pageSize: number;
+          }>;
+        }
+      ).listByUser(USER_ID, {
+        page: 2,
+        pageSize: 10,
+        keyword: 'hr',
+        status: 'active',
+        sort: 'nameAsc',
+      });
+
+      expect(prisma.workspace.count).toHaveBeenCalledWith({
+        where: {
+          members: {
+            some: {
+              userId: USER_ID,
+              status: { in: ['ACTIVE', 'INVITED'] },
+            },
+          },
+          deletedAt: null,
+          status: 'active',
+          OR: [
+            { name: { contains: 'hr', mode: 'insensitive' } },
+            { slug: { contains: 'hr', mode: 'insensitive' } },
+          ],
+        },
+      });
+      expect(prisma.workspace.findMany).toHaveBeenCalledWith({
+        where: {
+          members: {
+            some: {
+              userId: USER_ID,
+              status: { in: ['ACTIVE', 'INVITED'] },
+            },
+          },
+          deletedAt: null,
+          status: 'active',
+          OR: [
+            { name: { contains: 'hr', mode: 'insensitive' } },
+            { slug: { contains: 'hr', mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { name: 'asc' },
+        skip: 10,
+        take: 10,
+      });
+      expect(result).toEqual({
+        items: wsList,
+        total: 21,
+        page: 2,
+        pageSize: 10,
+      });
     });
   });
 

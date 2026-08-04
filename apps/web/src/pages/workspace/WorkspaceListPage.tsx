@@ -17,7 +17,15 @@ import {
   message,
   Modal,
 } from 'antd';
-import { LogoutOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  DeploymentUnitOutlined,
+  FilterOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { logout } from '../../api/auth';
@@ -33,6 +41,7 @@ import {
 import { useAuthStore } from '../../stores/auth.store';
 import WorkspaceCreateForm from './WorkspaceCreateForm';
 import { WorkspaceLaunchCard } from './WorkspaceLaunchCard';
+import './workspace-launchpad.css';
 
 const { Header, Content } = Layout;
 
@@ -84,6 +93,8 @@ export default function WorkspaceListPage() {
   const workspaces = workspacePage?.items ?? [];
   const total = workspacePage?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const activeOnPage = workspaces.filter((workspace) => workspace.status === 'active').length;
+  const archivedOnPage = workspaces.filter((workspace) => workspace.status === 'archived').length;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -170,6 +181,7 @@ export default function WorkspaceListPage() {
     if (isLoading) {
       return (
         <List
+          className="workspace-launchpad__grid"
           grid={{ gutter: 16, column: 3 }}
           dataSource={new Array(6).fill(0)}
           renderItem={(_, idx) => (
@@ -200,7 +212,14 @@ export default function WorkspaceListPage() {
 
     if (total === 0) {
       return (
-        <Empty description={t('workspace.empty')}>
+        <Empty
+          className="workspace-launchpad__empty"
+          description={
+            keyword.trim() || statusFilter !== 'all'
+              ? t('workspace.emptyFiltered')
+              : t('workspace.empty')
+          }
+        >
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
             {t('workspace.create')}
           </Button>
@@ -209,8 +228,9 @@ export default function WorkspaceListPage() {
     }
 
     return (
-      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+      <Space className="workspace-launchpad__result-stack" direction="vertical" size={16}>
         <List
+          className="workspace-launchpad__grid"
           grid={{ gutter: 16, column: 3 }}
           dataSource={workspaces}
           renderItem={(workspace) => (
@@ -225,7 +245,7 @@ export default function WorkspaceListPage() {
           )}
         />
         {total > PAGE_SIZE ? (
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div className="workspace-launchpad__pagination">
             <Pagination
               current={currentPage}
               pageSize={PAGE_SIZE}
@@ -240,61 +260,95 @@ export default function WorkspaceListPage() {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', minWidth: 'var(--tdy-min-width)' }}>
-      <Header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          color: '#fff',
-        }}
-      >
-        <Typography.Text style={{ color: '#fff' }} strong>
+    <Layout className="workspace-launchpad">
+      <Header className="workspace-launchpad__topbar">
+        <Typography.Text className="workspace-launchpad__brand" strong>
           {t('app.title')}
         </Typography.Text>
-        <Space>
-          <Typography.Text style={{ color: '#fff' }}>{user?.email}</Typography.Text>
+        <Space size={16}>
+          <Typography.Text className="workspace-launchpad__user">{user?.email}</Typography.Text>
           <Button
             type="text"
             icon={<LogoutOutlined />}
             onClick={onLogout}
             loading={loggingOut}
-            style={{ color: '#fff' }}
+            className="workspace-launchpad__logout"
           >
             {t('common.logout')}
           </Button>
         </Space>
       </Header>
-      <Content style={{ padding: 24 }}>
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
-          <Card>
-            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-              <Space direction="vertical" size={2}>
-                <Typography.Title level={4} style={{ margin: 0 }}>
+      <Content className="workspace-launchpad__content">
+        <div className="workspace-launchpad__shell">
+          <section className="workspace-launchpad__hero">
+            <div className="workspace-launchpad__route-rail" aria-hidden="true" />
+            <div className="workspace-launchpad__hero-main">
+              <Typography.Text className="workspace-launchpad__eyebrow">
+                {t('workspace.eyebrow')}
+              </Typography.Text>
+              <Space className="workspace-launchpad__hero-title-row" align="center" size={12}>
+                <span className="workspace-launchpad__hero-icon" aria-hidden="true">
+                  <DeploymentUnitOutlined />
+                </span>
+                <Typography.Title level={2} className="workspace-launchpad__title">
                   {t('workspace.title')}
                 </Typography.Title>
-                <Typography.Text type="secondary">{t('workspace.subtitle')}</Typography.Text>
               </Space>
-              <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
-                {t('workspace.create')}
-              </Button>
-            </Space>
-          </Card>
+              <Typography.Paragraph className="workspace-launchpad__subtitle">
+                {t('workspace.subtitle')}
+              </Typography.Paragraph>
+            </div>
 
-          <Card>
-            <Space wrap style={{ justifyContent: 'space-between', width: '100%' }}>
+            <div className="workspace-launchpad__metrics" aria-label={t('workspace.summaryLabel')}>
+              <div className="workspace-launchpad__metric">
+                <Typography.Text className="workspace-launchpad__metric-value">
+                  {total}
+                </Typography.Text>
+                <Typography.Text className="workspace-launchpad__metric-label">
+                  {t('workspace.summaryTotal')}
+                </Typography.Text>
+              </div>
+              <div className="workspace-launchpad__metric">
+                <Typography.Text className="workspace-launchpad__metric-value">
+                  {activeOnPage}
+                </Typography.Text>
+                <Typography.Text className="workspace-launchpad__metric-label">
+                  {t('workspace.summaryActive')}
+                </Typography.Text>
+              </div>
+              <div className="workspace-launchpad__metric">
+                <Typography.Text className="workspace-launchpad__metric-value">
+                  {archivedOnPage}
+                </Typography.Text>
+                <Typography.Text className="workspace-launchpad__metric-label">
+                  {t('workspace.summaryArchived')}
+                </Typography.Text>
+              </div>
+            </div>
+
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
+              {t('workspace.create')}
+            </Button>
+          </section>
+
+          <section className="workspace-launchpad__surface">
+            <div className="workspace-launchpad__toolbar">
               <Input
                 allowClear
+                prefix={<SearchOutlined />}
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder={t('workspace.searchPlaceholder')}
-                style={{ width: 260 }}
+                className="workspace-launchpad__search"
+                aria-label={t('workspace.searchPlaceholder')}
               />
-              <Space wrap>
+              <Space wrap size={12}>
                 <Select<StatusFilter>
                   value={statusFilter}
                   onChange={setStatusFilter}
-                  style={{ width: 140 }}
+                  suffixIcon={<FilterOutlined />}
+                  className="workspace-launchpad__status-filter"
+                  aria-label={t('workspace.statusFilter')}
                   options={[
                     { value: 'all', label: t('workspace.filterAll') },
                     { value: 'active', label: t('workspace.filterActive') },
@@ -304,7 +358,9 @@ export default function WorkspaceListPage() {
                 <Select<SortOption>
                   value={sortOption}
                   onChange={setSortOption}
-                  style={{ width: 160 }}
+                  suffixIcon={<SortAscendingOutlined />}
+                  className="workspace-launchpad__sort"
+                  aria-label={t('workspace.sort')}
                   options={[
                     { value: 'createdAtDesc', label: t('workspace.sortCreatedDesc') },
                     { value: 'createdAtAsc', label: t('workspace.sortCreatedAsc') },
@@ -313,11 +369,21 @@ export default function WorkspaceListPage() {
                   ]}
                 />
               </Space>
-            </Space>
-          </Card>
+            </div>
 
-          {renderBody()}
-        </Space>
+            <div className="workspace-launchpad__list-head">
+              <Space align="center" size={8}>
+                <AppstoreOutlined aria-hidden="true" />
+                <Typography.Text strong>{t('workspace.listTitle')}</Typography.Text>
+              </Space>
+              <Typography.Text type="secondary">
+                {t('workspace.listMeta', { shown: workspaces.length, total })}
+              </Typography.Text>
+            </div>
+
+            {renderBody()}
+          </section>
+        </div>
       </Content>
 
       <Drawer

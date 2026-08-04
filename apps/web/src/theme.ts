@@ -20,6 +20,7 @@ export const globalStyles = `
   --tdy-color-bg-layout: #f5f5f5;
   --tdy-color-bg-container: #ffffff;
   --tdy-color-text: #1f1f1f;
+  --tdy-color-text-secondary: #595959;
   --tdy-color-border: #d9d9d9;
   --tdy-border-radius-container: 8px;
   --tdy-min-width: 1280px;

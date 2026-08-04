@@ -23,6 +23,14 @@ export {
   type MeResponse,
 } from './auth';
 
+/* ===================== 工作空间 ===================== */
+export {
+  type WorkspaceStatus,
+  type WorkspaceSort,
+  type WorkspaceItem,
+  type ListWorkspacesQuery,
+} from './workspace';
+
 /* ===================== 数据模型 ===================== */
 export {
   // 枚举

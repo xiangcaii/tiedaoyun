@@ -8,13 +8,14 @@
  * - *：NotFound
  */
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Spin } from 'antd';
 import { useAuthStore } from './stores/auth.store';
 import { RequireAuth } from './routes/RequireAuth';
 
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
-const WorkspacePlaceholderPage = lazy(() => import('./pages/workspace/WorkspacePlaceholderPage'));
+const WorkspaceListPage = lazy(() => import('./pages/workspace/WorkspaceListPage'));
+const WorkspaceSettingsPage = lazy(() => import('./pages/workspace/WorkspaceSettingsPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function PageSpin() {
@@ -43,6 +44,11 @@ function GuestOnly({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function WorkspaceRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/workspace/${id}/settings`} replace />;
+}
+
 export default function App() {
   return (
     <Suspense fallback={<PageSpin />}>
@@ -59,10 +65,19 @@ export default function App() {
           path="/workspace"
           element={
             <RequireAuth>
-              <WorkspacePlaceholderPage />
+              <WorkspaceListPage />
             </RequireAuth>
           }
         />
+        <Route
+          path="/workspace/:id/settings"
+          element={
+            <RequireAuth>
+              <WorkspaceSettingsPage />
+            </RequireAuth>
+          }
+        />
+        <Route path="/workspace/:id" element={<WorkspaceRedirect />} />
         <Route path="/" element={<Navigate to="/workspace" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

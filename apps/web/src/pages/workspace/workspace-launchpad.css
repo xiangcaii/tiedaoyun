@@ -1,12 +1,215 @@
+.workspace-launchpad {
+  min-height: 100vh;
+  min-width: var(--tdy-min-width);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tdy-color-primary) 7%, var(--tdy-color-bg-layout)),
+    var(--tdy-color-bg-layout) 260px
+  );
+}
+
+.workspace-launchpad__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding-inline: 24px;
+  background: var(--tdy-color-text);
+  line-height: 56px;
+}
+
+.workspace-launchpad__brand.ant-typography,
+.workspace-launchpad__user.ant-typography,
+.workspace-launchpad__logout.ant-btn {
+  color: var(--tdy-color-bg-container);
+}
+
+.workspace-launchpad__logout.ant-btn:hover,
+.workspace-launchpad__logout.ant-btn:focus-visible {
+  color: var(--tdy-color-bg-container);
+  background: color-mix(in srgb, var(--tdy-color-bg-container) 12%, transparent);
+}
+
+.workspace-launchpad__content {
+  padding: 24px;
+}
+
+.workspace-launchpad__shell {
+  display: grid;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  gap: 24px;
+}
+
+.workspace-launchpad__hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 152px;
+  padding: 24px 24px 24px 32px;
+  border: 1px solid var(--tdy-color-border);
+  border-radius: var(--tdy-border-radius-container);
+  background: var(--tdy-color-bg-container);
+}
+
+.workspace-launchpad__route-rail {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: 16px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    var(--tdy-color-primary),
+    color-mix(in srgb, var(--tdy-color-primary) 24%, var(--tdy-color-bg-container))
+  );
+}
+
+.workspace-launchpad__hero-main {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.workspace-launchpad__eyebrow {
+  color: var(--tdy-color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.workspace-launchpad__hero-title-row {
+  min-width: 0;
+}
+
+.workspace-launchpad__hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid color-mix(in srgb, var(--tdy-color-primary) 28%, var(--tdy-color-border));
+  border-radius: 6px;
+  color: var(--tdy-color-primary);
+  background: color-mix(in srgb, var(--tdy-color-primary) 8%, var(--tdy-color-bg-container));
+  font-size: 16px;
+}
+
+.workspace-launchpad__title.ant-typography {
+  margin: 0;
+}
+
+.workspace-launchpad__subtitle.ant-typography {
+  max-width: 560px;
+  margin: 0;
+  color: var(--tdy-color-text-secondary);
+}
+
+.workspace-launchpad__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 92px);
+  gap: 8px;
+}
+
+.workspace-launchpad__metric {
+  display: grid;
+  gap: 2px;
+  min-height: 68px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--tdy-color-border) 72%, var(--tdy-color-bg-container));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--tdy-color-bg-layout) 68%, var(--tdy-color-bg-container));
+}
+
+.workspace-launchpad__metric-value {
+  color: var(--tdy-color-text);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.workspace-launchpad__metric-label {
+  color: var(--tdy-color-text-secondary);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.workspace-launchpad__surface {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--tdy-color-border);
+  border-radius: var(--tdy-border-radius-container);
+  background: var(--tdy-color-bg-container);
+}
+
+.workspace-launchpad__toolbar,
+.workspace-launchpad__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.workspace-launchpad__toolbar {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--tdy-color-border);
+}
+
+.workspace-launchpad__search {
+  width: 320px;
+}
+
+.workspace-launchpad__status-filter {
+  width: 144px;
+}
+
+.workspace-launchpad__sort {
+  width: 184px;
+}
+
+.workspace-launchpad__list-head {
+  min-height: 32px;
+}
+
+.workspace-launchpad__result-stack {
+  width: 100%;
+}
+
+.workspace-launchpad__grid .ant-list-items {
+  margin-bottom: -16px;
+}
+
+.workspace-launchpad__pagination {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.workspace-launchpad__empty {
+  padding: 48px 0;
+}
+
 .workspace-launch-card {
   overflow: hidden;
   border-color: var(--tdy-color-border);
   border-radius: var(--tdy-border-radius-container);
   background: var(--tdy-color-bg-container);
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.workspace-launch-card:hover {
+  border-color: color-mix(in srgb, var(--tdy-color-primary) 48%, var(--tdy-color-border));
+  transform: translateY(-1px);
 }
 
 .workspace-launch-card--archived {
   background: var(--tdy-color-bg-layout);
+  transform: none;
 }
 
 .workspace-launch-card .ant-card-body {
@@ -30,6 +233,11 @@ button.workspace-launch-card__body {
   cursor: pointer;
 }
 
+button.workspace-launch-card__body:focus-visible {
+  outline: 2px solid var(--tdy-color-primary);
+  outline-offset: -2px;
+}
+
 .workspace-launch-card__identity-rail {
   position: absolute;
   top: 0;
@@ -45,6 +253,7 @@ button.workspace-launch-card__body {
 
 .workspace-launch-card__identity {
   display: flex;
+  min-width: 0;
 }
 
 .workspace-launch-card__avatar {
@@ -74,6 +283,7 @@ button.workspace-launch-card__body {
 .workspace-launch-card__metadata {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   min-height: 22px;
   gap: 12px;
 }

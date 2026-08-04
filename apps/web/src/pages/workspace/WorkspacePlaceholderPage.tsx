@@ -27,8 +27,17 @@ export default function WorkspacePlaceholderPage() {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
-  const { data: workspaces, isLoading, isError, error } = useWorkspacesQuery();
+  const {
+    data: workspacePage,
+    isLoading,
+    isError,
+    error,
+  } = useWorkspacesQuery({
+    page: 1,
+    pageSize: 10,
+  });
   const [loggingOut, setLoggingOut] = useState(false);
+  const workspaces = workspacePage?.items ?? [];
 
   const onLogout = async () => {
     setLoggingOut(true);
@@ -62,7 +71,7 @@ export default function WorkspacePlaceholderPage() {
         />
       );
     }
-    if (!workspaces || workspaces.length === 0) {
+    if (workspaces.length === 0) {
       return (
         <Empty description={t('workspace.empty')}>
           <Button type="primary" icon={<PlusOutlined />} disabled>
