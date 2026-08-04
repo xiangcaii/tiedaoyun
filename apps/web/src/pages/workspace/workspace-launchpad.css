@@ -16,8 +16,18 @@
 .workspace-launch-card__body {
   position: relative;
   display: grid;
+  width: 100%;
   gap: 16px;
   padding: 24px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.workspace-launch-card__body {
+  cursor: pointer;
 }
 
 .workspace-launch-card__identity-rail {

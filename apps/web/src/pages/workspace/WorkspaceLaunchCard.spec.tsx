@@ -16,13 +16,40 @@ const archivedWorkspace: WorkspaceItem = {
   deletedAt: '2026-08-02T00:00:00.000Z',
 };
 
+const activeWorkspace: WorkspaceItem = {
+  ...archivedWorkspace,
+  id: 'ws_active',
+  status: 'active',
+  deletedAt: null,
+};
+
 describe('WorkspaceLaunchCard', () => {
-  it('shows an archive hint and disables entering an archived workspace', () => {
+  it('hides deletion when the parent does not grant delete permission', () => {
     const html = renderToStaticMarkup(
-      <WorkspaceLaunchCard workspace={archivedWorkspace} onOpen={vi.fn()} onDelete={vi.fn()} />,
+      <WorkspaceLaunchCard
+        workspace={archivedWorkspace}
+        canDelete={false}
+        onOpen={vi.fn()}
+        onDelete={vi.fn()}
+      />,
     );
 
     expect(html).toContain('已归档');
     expect(html).toMatch(/<button[^>]*disabled[^>]*>[\s\S]*?<span>进入<\/span><\/button>/);
+    expect(html).not.toContain('删除工作空间');
+  });
+
+  it('renders an active workspace identity area as a native enter button', () => {
+    const html = renderToStaticMarkup(
+      <WorkspaceLaunchCard
+        workspace={activeWorkspace}
+        canDelete
+        onOpen={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(html).toMatch(/<button[^>]*class="workspace-launch-card__body"[^>]*>/);
+    expect(html).toContain('进入');
   });
 });

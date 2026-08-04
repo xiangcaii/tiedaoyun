@@ -6,6 +6,7 @@ import './workspace-launchpad.css';
 
 export interface WorkspaceLaunchCardProps {
   workspace: WorkspaceItem;
+  canDelete: boolean;
   onOpen: (workspace: WorkspaceItem) => void;
   onDelete: (workspace: WorkspaceItem) => void;
 }
@@ -18,40 +19,58 @@ function formatCreatedAt(value: string): string {
   }).format(new Date(value));
 }
 
-export function WorkspaceLaunchCard({ workspace, onOpen, onDelete }: WorkspaceLaunchCardProps) {
+export function WorkspaceLaunchCard({
+  workspace,
+  canDelete,
+  onOpen,
+  onDelete,
+}: WorkspaceLaunchCardProps) {
   const { t } = useTranslation();
   const archived = workspace.status === 'archived';
+  const identityContent = (
+    <>
+      <div className="workspace-launch-card__identity-rail" aria-hidden="true" />
+      <Space className="workspace-launch-card__identity" align="start" size={12}>
+        <Avatar
+          className="workspace-launch-card__avatar"
+          size={40}
+          src={workspace.logoUrl ?? undefined}
+        >
+          {workspace.name.slice(0, 1)}
+        </Avatar>
+        <div className="workspace-launch-card__details">
+          <Typography.Text className="workspace-launch-card__name" strong>
+            {workspace.name}
+          </Typography.Text>
+          <Typography.Text className="workspace-launch-card__slug" type="secondary">
+            {workspace.slug}
+          </Typography.Text>
+        </div>
+      </Space>
+
+      <div className="workspace-launch-card__metadata">
+        <Tag>{archived ? t('workspace.statusArchived') : t('workspace.statusActive')}</Tag>
+        <Typography.Text className="workspace-launch-card__created-at" type="secondary">
+          <CalendarOutlined aria-hidden="true" />
+          {t('workspace.createdAt', { value: formatCreatedAt(workspace.createdAt) })}
+        </Typography.Text>
+      </div>
+    </>
+  );
 
   return (
     <Card className={`workspace-launch-card${archived ? ' workspace-launch-card--archived' : ''}`}>
-      <div className="workspace-launch-card__body">
-        <div className="workspace-launch-card__identity-rail" aria-hidden="true" />
-        <Space className="workspace-launch-card__identity" align="start" size={12}>
-          <Avatar
-            className="workspace-launch-card__avatar"
-            size={40}
-            src={workspace.logoUrl ?? undefined}
-          >
-            {workspace.name.slice(0, 1)}
-          </Avatar>
-          <div className="workspace-launch-card__details">
-            <Typography.Text className="workspace-launch-card__name" strong>
-              {workspace.name}
-            </Typography.Text>
-            <Typography.Text className="workspace-launch-card__slug" type="secondary">
-              {workspace.slug}
-            </Typography.Text>
-          </div>
-        </Space>
-
-        <div className="workspace-launch-card__metadata">
-          <Tag>{archived ? t('workspace.statusArchived') : t('workspace.statusActive')}</Tag>
-          <Typography.Text className="workspace-launch-card__created-at" type="secondary">
-            <CalendarOutlined aria-hidden="true" />
-            {t('workspace.createdAt', { value: formatCreatedAt(workspace.createdAt) })}
-          </Typography.Text>
-        </div>
-      </div>
+      {archived ? (
+        <div className="workspace-launch-card__body">{identityContent}</div>
+      ) : (
+        <button
+          type="button"
+          className="workspace-launch-card__body"
+          onClick={() => onOpen(workspace)}
+        >
+          {identityContent}
+        </button>
+      )}
 
       <div className="workspace-launch-card__actions">
         <Button
@@ -62,9 +81,11 @@ export function WorkspaceLaunchCard({ workspace, onOpen, onDelete }: WorkspaceLa
         >
           {t('workspace.enter')}
         </Button>
-        <Button danger icon={<DeleteOutlined />} onClick={() => onDelete(workspace)}>
-          {t('workspace.delete')}
-        </Button>
+        {canDelete ? (
+          <Button danger icon={<DeleteOutlined />} onClick={() => onDelete(workspace)}>
+            {t('workspace.delete')}
+          </Button>
+        ) : null}
       </div>
     </Card>
   );
