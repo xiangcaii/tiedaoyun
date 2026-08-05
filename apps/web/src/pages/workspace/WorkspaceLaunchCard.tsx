@@ -30,10 +30,10 @@ export function WorkspaceLaunchCard({
   const identityContent = (
     <>
       <div className="workspace-launch-card__identity-rail" aria-hidden="true" />
-      <Space className="workspace-launch-card__identity" align="start" size={12}>
+      <Space className="workspace-launch-card__identity" align="start" size={14}>
         <Avatar
           className="workspace-launch-card__avatar"
-          size={40}
+          size={42}
           src={workspace.logoUrl ?? undefined}
         >
           {workspace.name.slice(0, 1)}
@@ -49,7 +49,9 @@ export function WorkspaceLaunchCard({
       </Space>
 
       <div className="workspace-launch-card__metadata">
-        <Tag>{archived ? t('workspace.statusArchived') : t('workspace.statusActive')}</Tag>
+        <Tag color={archived ? undefined : 'success'}>
+          {archived ? t('workspace.statusArchived') : t('workspace.statusActive')}
+        </Tag>
         <Typography.Text className="workspace-launch-card__created-at" type="secondary">
           <CalendarOutlined aria-hidden="true" />
           {t('workspace.createdAt', { value: formatCreatedAt(workspace.createdAt) })}

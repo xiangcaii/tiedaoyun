@@ -66,7 +66,7 @@ docker compose pull && docker compose up -d
 
 ## 本地开发
 
-本仓库为 pnpm monorepo，目录结构遵循 [HLD §3](docs/staging/specs/2026-07-31-hld.md#3-仓库与目录结构)：
+本仓库为 pnpm monorepo，目录结构遵循 [架构总览 §3](docs/architecture/overview.md#3-仓库与目录结构)：
 
 ```
 tiedaoyun/

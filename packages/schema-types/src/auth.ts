@@ -1,5 +1,5 @@
 /**
- * 鉴权共享类型（plan T29 / features/2026-08-03-login.md §4 API 契约）。
+ * 鉴权共享类型（MVP 计划 T29 / features/authentication.md §4 API 契约）。
  *
  * 前后端共用，确保 auth 端点请求/响应形态一致。
  * 后端成功响应为裸业务对象（不做 `{ code, data }` 包装，见 feature.md §4.5）。

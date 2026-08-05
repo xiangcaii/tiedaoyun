@@ -23,7 +23,6 @@ function PageSpin() {
     <div
       style={{
         minHeight: '100vh',
-        minWidth: 'var(--tdy-min-width)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

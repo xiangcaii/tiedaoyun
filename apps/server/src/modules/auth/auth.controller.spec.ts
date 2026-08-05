@@ -1,5 +1,5 @@
 /**
- * AuthController 单元测试（Vitest，features/2026-08-03-login.md §7）。
+ * AuthController 单元测试（Vitest，features/authentication.md §7）。
  *
  * 覆盖 cookie 行为：
  * - login 下发 httpOnly cookie（path=/api/v1/auth/refresh），响应体不含 refreshToken

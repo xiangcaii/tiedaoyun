@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  App as AntdApp,
   Button,
   Card,
+  Divider,
   Drawer,
   Empty,
   Form,
@@ -14,13 +16,12 @@ import {
   Skeleton,
   Space,
   Typography,
-  message,
-  Modal,
 } from 'antd';
 import {
   AppstoreOutlined,
+  CheckSquareOutlined,
   DeploymentUnitOutlined,
-  FilterOutlined,
+  InboxOutlined,
   LogoutOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -62,6 +63,7 @@ function slugifyWorkspace(value: string): string {
 
 export default function WorkspaceListPage() {
   const { t } = useTranslation();
+  const { message, modal } = AntdApp.useApp();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
@@ -150,7 +152,7 @@ export default function WorkspaceListPage() {
   };
 
   const confirmDelete = (ws: WorkspaceItem) => {
-    Modal.confirm({
+    modal.confirm({
       title: t('workspace.deleteTitle'),
       content: (
         <div>
@@ -182,7 +184,7 @@ export default function WorkspaceListPage() {
       return (
         <List
           className="workspace-launchpad__grid"
-          grid={{ gutter: 16, column: 3 }}
+          split={false}
           dataSource={new Array(6).fill(0)}
           renderItem={(_, idx) => (
             <List.Item key={idx}>
@@ -231,7 +233,7 @@ export default function WorkspaceListPage() {
       <Space className="workspace-launchpad__result-stack" direction="vertical" size={16}>
         <List
           className="workspace-launchpad__grid"
-          grid={{ gutter: 16, column: 3 }}
+          split={false}
           dataSource={workspaces}
           renderItem={(workspace) => (
             <List.Item key={workspace.id}>
@@ -265,8 +267,9 @@ export default function WorkspaceListPage() {
         <Typography.Text className="workspace-launchpad__brand" strong>
           {t('app.title')}
         </Typography.Text>
-        <Space size={16}>
+        <Space size={10}>
           <Typography.Text className="workspace-launchpad__user">{user?.email}</Typography.Text>
+          <Divider type="vertical" className="workspace-launchpad__topbar-divider" />
           <Button
             type="text"
             icon={<LogoutOutlined />}
@@ -286,21 +289,26 @@ export default function WorkspaceListPage() {
               <Typography.Text className="workspace-launchpad__eyebrow">
                 {t('workspace.eyebrow')}
               </Typography.Text>
-              <Space className="workspace-launchpad__hero-title-row" align="center" size={12}>
+              <div className="workspace-launchpad__hero-overview">
                 <span className="workspace-launchpad__hero-icon" aria-hidden="true">
                   <DeploymentUnitOutlined />
                 </span>
-                <Typography.Title level={2} className="workspace-launchpad__title">
-                  {t('workspace.title')}
-                </Typography.Title>
-              </Space>
-              <Typography.Paragraph className="workspace-launchpad__subtitle">
-                {t('workspace.subtitle')}
-              </Typography.Paragraph>
+                <div className="workspace-launchpad__hero-copy">
+                  <Typography.Title level={2} className="workspace-launchpad__title">
+                    {t('workspace.title')}
+                  </Typography.Title>
+                  <Typography.Paragraph className="workspace-launchpad__subtitle">
+                    {t('workspace.subtitle')}
+                  </Typography.Paragraph>
+                </div>
+              </div>
             </div>
 
             <div className="workspace-launchpad__metrics" aria-label={t('workspace.summaryLabel')}>
-              <div className="workspace-launchpad__metric">
+              <div className="workspace-launchpad__metric workspace-launchpad__metric--total">
+                <span className="workspace-launchpad__metric-icon" aria-hidden="true">
+                  <AppstoreOutlined />
+                </span>
                 <Typography.Text className="workspace-launchpad__metric-value">
                   {total}
                 </Typography.Text>
@@ -308,7 +316,10 @@ export default function WorkspaceListPage() {
                   {t('workspace.summaryTotal')}
                 </Typography.Text>
               </div>
-              <div className="workspace-launchpad__metric">
+              <div className="workspace-launchpad__metric workspace-launchpad__metric--active">
+                <span className="workspace-launchpad__metric-icon" aria-hidden="true">
+                  <CheckSquareOutlined />
+                </span>
                 <Typography.Text className="workspace-launchpad__metric-value">
                   {activeOnPage}
                 </Typography.Text>
@@ -316,7 +327,10 @@ export default function WorkspaceListPage() {
                   {t('workspace.summaryActive')}
                 </Typography.Text>
               </div>
-              <div className="workspace-launchpad__metric">
+              <div className="workspace-launchpad__metric workspace-launchpad__metric--archived">
+                <span className="workspace-launchpad__metric-icon" aria-hidden="true">
+                  <InboxOutlined />
+                </span>
                 <Typography.Text className="workspace-launchpad__metric-value">
                   {archivedOnPage}
                 </Typography.Text>
@@ -326,7 +340,12 @@ export default function WorkspaceListPage() {
               </div>
             </div>
 
-            <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={openCreateDrawer}
+              className="workspace-launchpad__hero-action"
+            >
               {t('workspace.create')}
             </Button>
           </section>
@@ -346,7 +365,6 @@ export default function WorkspaceListPage() {
                 <Select<StatusFilter>
                   value={statusFilter}
                   onChange={setStatusFilter}
-                  suffixIcon={<FilterOutlined />}
                   className="workspace-launchpad__status-filter"
                   aria-label={t('workspace.statusFilter')}
                   options={[

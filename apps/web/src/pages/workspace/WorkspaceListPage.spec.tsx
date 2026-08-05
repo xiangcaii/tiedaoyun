@@ -89,7 +89,7 @@ vi.mock('../../api/workspace', () => ({
 }));
 
 describe('WorkspaceListPage', () => {
-  it('renders workspace launch cards in a three-column grid', () => {
+  it('renders workspace launch cards in the launchpad card grid', () => {
     useWorkspacesQueryMock.mockClear();
     mockWorkspaces = [
       {
@@ -110,7 +110,7 @@ describe('WorkspaceListPage', () => {
     expect(html).toContain('人事中心');
     expect(html).toContain('hr-center');
     expect(html).toContain('workspace-launch-card');
-    expect(html).toContain('ant-list-grid');
+    expect(html).toContain('workspace-launchpad__grid');
     expect(useWorkspacesQueryMock).toHaveBeenCalledWith({
       page: 1,
       pageSize: 10,

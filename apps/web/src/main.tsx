@@ -4,7 +4,7 @@
  * Provider 栈：BrowserRouter > QueryClientProvider > ConfigProvider(AntD) > App
  * - AntD 中文 locale
  * - React Query 默认不重试未授权类请求（占位配置）
- * - 注入全局 CSS 变量（--tdy-*）
+ * - Ant Design 主题保持官网默认值；仅注入基础 reset 与兼容存量页面的变量
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import App from './App';
-import { themeConfig, globalStyles } from './theme';
+import { globalStyles } from './theme';
 import './i18n';
 
 const queryClient = new QueryClient({
@@ -37,7 +37,7 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <ConfigProvider locale={zhCN} theme={themeConfig}>
+    <ConfigProvider locale={zhCN}>
       <AntdApp>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>

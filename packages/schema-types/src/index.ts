@@ -12,7 +12,7 @@
  * - workflow.ts — 流程（HLD §8.1），plan T17
  */
 
-/* ===================== 鉴权（plan T29 / features/2026-08-03-login.md） ===================== */
+/* ===================== 鉴权（MVP 计划 T29 / features/authentication.md） ===================== */
 export {
   type UserStatus,
   type SafeUser,

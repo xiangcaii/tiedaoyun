@@ -1,5 +1,5 @@
 /**
- * AuthController — 鉴权相关端点（HLD §6.3 / features/2026-08-03-login.md §4）。
+ * AuthController — 鉴权相关端点（架构总览 §6.3 / features/authentication.md §4）。
  *
  * - POST /api/v1/auth/login    — 邮箱密码登录，accessToken 走响应体，refreshToken 走 httpOnly cookie
  * - POST /api/v1/auth/refresh  — 从 cookie 读取 refreshToken，滚动续期

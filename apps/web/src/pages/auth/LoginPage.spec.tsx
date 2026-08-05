@@ -19,7 +19,7 @@ vi.mock('../../stores/auth.store', () => ({
 }));
 
 describe('LoginPage', () => {
-  it('renders the industrial blueprint style login content', () => {
+  it('renders the login content and feature cards', () => {
     const html = renderToStaticMarkup(<LoginPage />);
 
     expect(html).toContain('自部署、可扩展的低代码平台');
@@ -36,8 +36,9 @@ describe('LoginPage', () => {
     expect(html).not.toContain('&gt;至少 6 位&lt;');
   });
 
-  it('uses a compact 36px input height', () => {
+  it('does not override Ant Design visual tokens in page CSS', () => {
     const css = readFileSync(new URL('./LoginPage.css', import.meta.url), 'utf8');
-    expect(css).toContain('min-height: 36px;');
+    expect(css).not.toContain('border-radius:');
+    expect(css).not.toMatch(/#[0-9a-f]{3,8}/i);
   });
 });
